@@ -131,6 +131,23 @@ describe("CMIS Sync", function() {
 		});
 	});
 	
+	it ("retrieve document via object selector", function() {
+		var resp = undefined;		
+		
+		runs(function() {				
+			resp = CMIS.object({
+				'objectId' : documentId
+			});		
+		});
+		
+		waitsFor(function() {
+			return resp.state() !== 'pending';
+		});
+		
+		runs(function() {			
+			expect(resp.state()).toBe('resolved');
+		});
+	});	
 	
 	it ("list children", function() {
 		var resp = undefined;		

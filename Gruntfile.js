@@ -5,7 +5,7 @@ module.exports = function(grunt) {
     pkg: grunt.file.readJSON('package.json'),
     
     jasmine : {
-    	backboneCmis : {
+    	'cmis.js' : {
     		src : ['src/**/*.js'],
     		options : {
     			'--web-security' : false,

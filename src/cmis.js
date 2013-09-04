@@ -208,6 +208,14 @@ var CMIS = (function () {
 			return this.objectService($.extend(data,inputs),options);			
 		},
 		
+		object : function(inputs,options) {
+			var data = {
+				'cmisselector' : 'object'
+			};
+						
+			return this.objectService($.extend(data,inputs),options);			
+		},
+		
 		move : function(inputs,options) {
 			options || (options = {});
 			options.type = 'POST';

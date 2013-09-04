@@ -92,6 +92,24 @@ describe("CMIS Sync", function() {
 		
 	});
 	
+	it ("download document source from repo", function() {
+		var resp = undefined;		
+		
+		runs(function() {				
+			resp = CMIS.content({
+				'objectId' : documentId
+			});							
+		});
+		
+		waitsFor(function() {
+			return resp.state() !== 'pending';
+		});
+		
+		runs(function() {			
+			expect(resp.state()).toBe('resolved');			
+		});		
+	});
+	
 	it ("update document name", function() {		
 		var resp = undefined;		
 		

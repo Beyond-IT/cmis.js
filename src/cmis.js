@@ -216,6 +216,14 @@ var CMIS = (function () {
 			return this.objectService($.extend(data,inputs),options);			
 		},
 		
+		content : function(inputs,options) {
+			var data = {
+				'cmisselector' : 'content'
+			};
+			
+			return this.objectService($.extend(data,inputs),options);
+		},
+		
 		move : function(inputs,options) {
 			options || (options = {});
 			options.type = 'POST';

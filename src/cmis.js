@@ -96,9 +96,9 @@ var CMIS = (function () {
 		ajaxCall : function (params) {
 			params = $.extend(true,{},defaultOptions,params);
 			
-			if (params.path) {
-				params.url += inputs.path;
-				delete params.path;
+			if (params.data.path) {
+				params.url += path.data.path;
+				delete params.data.path;
 			}
 			
 			params.data = this.transformProperties(params.data);

@@ -1,0 +1,13 @@
+{
+  "name": "cmis.js",
+  "version": "0.1.0",
+  "author": "Stefan Huber <stefan.huber@beyondit.at> (http://www.beyondit.at)",
+  "description": "Convenience Library for CMIS Browser Binding",
+  "dependencies": {
+    "jquery-browser": "~1.10.2-1"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-contrib-jasmine": "~0.5.1"
+  }
+}

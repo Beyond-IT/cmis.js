@@ -5,13 +5,23 @@ module.exports = function(grunt) {
     pkg: grunt.file.readJSON('package.json'),
     
     jasmine : {
-    	'cmis.js' : {
+    	cmis : {
     		src : ['src/**/*.js'],
     		options : {
     			'--web-security' : false,
     		    '--local-to-remote-url-access' : true,
     		    '--ignore-ssl-errors' : true,
-    			specs : 'spec/*Spec.js',
+    			specs : 'spec/CMISSpec.js',
+    			vendor : ['node_modules/jquery-browser/lib/jquery.js']
+    		}
+    	},
+    	init : {
+    		src : ['src/**/*.js'],
+    		options : {
+    			'--web-security' : false,
+    		    '--local-to-remote-url-access' : true,
+    		    '--ignore-ssl-errors' : true,
+    			specs : 'spec/InitCMISSpec.js',
     			vendor : ['node_modules/jquery-browser/lib/jquery.js']
     		}
     	}
@@ -20,7 +30,7 @@ module.exports = function(grunt) {
   
   });
 
-  // Load the plugin that provides the "uglify" task.
+  // load the jasmine test task
   grunt.loadNpmTasks('grunt-contrib-jasmine');
 
   // Default task(s).

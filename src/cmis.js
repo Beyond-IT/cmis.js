@@ -26,12 +26,16 @@ var CMIS = (function () {
 	var $ = root.jQuery || root.Zepto || root.ender || root.$;
 	
 	var config = {
-		url : '',
+		serviceUrl : '',
 		basicauth : '',
 		repositoryId : '',
 		repositoryUrl : '',
 		rootFolderUrl : ''
 	};	
+	
+	var listeners = {
+		unauthorized : function() {}	
+	};
 	
 	var defaultOptions = {
 		data : {
@@ -43,10 +47,16 @@ var CMIS = (function () {
 		
 		// helpers
 		
+		addUnauthorizedListener : function(listener) {
+			if ($.isFunction(listener)) {				
+				listeners.unauthorized = listener;				
+			}
+		},
+		
 		transformProperties : function (properties) {			
 			var params = {} , i = 0;
 			$.each(properties, function(key,value) {
-				if (key.indexOf(':') > 0) {
+				if (key.indexOf(':') > 0) { // use : to check if it is a cmis object property, TODO: check if this is a good approach
 					params['propertyId['+i+']'] = key;
 					params['propertyValue['+i+']'] = value;
 					++i;
@@ -75,20 +85,35 @@ var CMIS = (function () {
 		
 		init : function (parameters) {
 			
-			config.url = parameters['url'];
+			config.serviceUrl = parameters['url'];
 			config.basicauth = btoa(parameters['username'] + ':' + parameters['password']);
-			config.repositoryId = parameters['repositoryId'];
-			
-			// TODO: these parameters should be obtained directly from the repository (getRepositories)
-			config.repositoryUrl = config.url + "/" + config.repositoryId;
-			config.rootFolderUrl = config.repositoryUrl + '/root'; // TODO: here it is assumed that root is the name of the root folder, which is not always true
 			
 			$.ajaxSetup({
 				beforeSend : function (xhr) { 
 					xhr.setRequestHeader('Authorization', "Basic " + config.basicauth); 
 				},
+				error : function (xhr,textStatus,errorThrown) {		
+					console.info("Error: " + textStatus);
+					
+					if (xhr.status == 401 || xhr.status == 403 && listeners.unauthorized) {
+						listeners.unauthorized(xhr,textStatus,errorThrown);
+					}
+				}
 			});
 			
+			if (parameters['repositoryId']) {
+				var repositoryId = parameters['repositoryId'];	
+				
+				config.repositoryUrl = config.serviceUrl+"/"+repositoryId;
+				return this.repositoryInfo().done(function(data) {
+					if (data[repositoryId]) {
+						config.repositoryUrl = data[repositoryId].repositoryUrl;
+						config.rootFolderUrl = data[repositoryId].rootFolderUrl;
+					}
+				});				
+			} else {
+				return this.repositories();
+			}
 		},
 		
 		// ajax Handling
@@ -101,8 +126,10 @@ var CMIS = (function () {
 				delete params.data.path;
 			}
 			
-			params.data = this.transformProperties(params.data);
-						
+			if (params.data) {
+				params.data = this.transformProperties(params.data);
+			}
+									
 			// exceptions :(
 			if (params.data['cmisaction'] === 'createDocument') {
 				params.data = this.asFormData(params.data);
@@ -112,9 +139,9 @@ var CMIS = (function () {
 				params.cache = false;	
 			}
 			
-			/* 
+			/*
 			// just for debugging purposes
-			$.each(params.data, function(key,value) {
+			$.each(params, function(key,value) {
 				console.info(key + " - " + value);
 			});
 			*/
@@ -135,6 +162,12 @@ var CMIS = (function () {
 			options.data = inputs;
 			options.url = config.rootFolderUrl;
 			
+			return this.ajaxCall(options);
+		},
+		
+		repositories : function() {
+			var options = {};
+			options.url = config.serviceUrl;
 			return this.ajaxCall(options);
 		},
 		
@@ -237,13 +270,20 @@ var CMIS = (function () {
 		
 		// repository Services
 		
+		repositoryInfo : function(options) {
+			var data = {
+				'cmisselector' : 'repositoryInfo'	
+			};
+			
+			return this.repositoryService(data,options);
+		},
+		
 		query : function(inputs,options) {			
 			var data = {
 				'cmisselector' : 'query'
 			};
 						
-			return this.repositoryService($.extend(data,inputs),options);
-			
+			return this.repositoryService($.extend(data,inputs),options);			
 		},
 				
 	};
